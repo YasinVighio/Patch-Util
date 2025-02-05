@@ -4,15 +4,18 @@
  */
 package org.patcher.screens;
 
+import org.patcher.core.AppContext;
 import org.patcher.core.PatchUtil;
+import org.patcher.core.PropManager;
 import org.patcher.dto.ActionDTO;
+import org.patcher.utility.Constants;
+import org.patcher.utility.PropertyUtil;
 import org.patcher.utility.UIUtils;
 import org.patcher.utility.Util;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -130,7 +133,7 @@ public class AppScreen extends javax.swing.JFrame {
 
         appNameLabel1.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         appNameLabel1.setForeground(new java.awt.Color(153, 153, 0));
-        appNameLabel1.setText("Patch Utils v1.0");
+        appNameLabel1.setText(AppContext.appFullName);
         appNameLabel1.setToolTipText("Utility application to create patch from and for exploded (extracted) WAR/JAR Files");
 
         appNameLabel2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
@@ -302,29 +305,34 @@ public class AppScreen extends javax.swing.JFrame {
 
     private void addFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFileBtnActionPerformed
         String newFile = openFileDialog();
-        if(newFile.endsWith(".zip")){
-            appNameModel.removeAllElements();
-            customAppName.setText("");
-            fileListModel.removeAllElements();
-            fileListModel.addElement(newFile);
-            if(Util.areStringsValid(this.appDir)) {
-                verifyPatchBtn.setEnabled(true);
-            }
-            readPatchBtn.setEnabled(true);
-            this.patchPath = newFile;
-        } else if(newFile.endsWith(".class")) {
-            String filePathWithoutDrive = UIUtils.removeDriveLetterFromPath(newFile);
-            String[] filePathParts = filePathWithoutDrive.split("\\\\");
-            for (String path : filePathParts) {
-                if (appNameModel.getIndexOf(path) < 0) {
-                    appNameModel.addElement(path);
+        if (PropertyUtil.isFileAllowed(newFile)) {
+            if (newFile.endsWith(Constants.FILE_CONSTANTS.ZIP_FILE_TYPE.getValue())) {
+                appNameModel.removeAllElements();
+                customAppName.setText("");
+                fileListModel.removeAllElements();
+                fileListModel.addElement(newFile);
+                if (Util.areStringsValid(this.appDir)) {
+                    verifyPatchBtn.setEnabled(true);
                 }
+                readPatchBtn.setEnabled(true);
+                this.patchPath = newFile;
+            } else {
+                String filePathWithoutDrive = Util.removeDriveLetterFromPath(newFile);
+                String[] filePathParts = filePathWithoutDrive.split("\\\\");
+                for (String path : filePathParts) {
+                    if (appNameModel.getIndexOf(path) < 0) {
+                        appNameModel.addElement(path);
+                    }
+                }
+                fileListModel.addElement(newFile);
+                UIUtils.removeZipFilesFromListModel(fileListModel);
+                this.readPatchBtn.setEnabled(false);
+                this.applyPatchBtn.setEnabled(false);
+                this.verifyPatchBtn.setEnabled(false);
             }
-            fileListModel.addElement(newFile);
-            UIUtils.removeZipFilesFromListModel(fileListModel);
-            this.readPatchBtn.setEnabled(false);
-            this.applyPatchBtn.setEnabled(false);
-            this.verifyPatchBtn.setEnabled(false);
+        } else{
+            this.outputArea.setText(UIUtils.encloseTextInParagraph("File type not allowed", "Arial", "16px",
+                    "red", "Error in adding patch file", true));
         }
     }//GEN-LAST:event_addFileBtnActionPerformed
 
@@ -343,9 +351,9 @@ public class AppScreen extends javax.swing.JFrame {
 
     private void createPatchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPatchBtnActionPerformed
         if(Util.isListModelNotEmpty(fileListModel)) {
-            String newFileName = JOptionPane.showInputDialog(this, "Enter patch name");
+            String newFileName = JOptionPane.showInputDialog(this, Constants.MESSAGES.PATCH_NAME_INPUT_MESSAGE.getValue());
             if (!Util.areStringsValid(newFileName)) {
-                newFileName = "patch_" + (new Date()).toString();
+                newFileName = PropManager.getPatchDefaultName();
             }
             newFileName = newFileName + ".zip";
             System.out.println(newFileName);
@@ -356,8 +364,13 @@ public class AppScreen extends javax.swing.JFrame {
                 customName = customAppName.getText();
             }
             if (Util.isListNotEmpty(filePaths)) {
-                String outputMsg = PatchUtil.createPatch(filePaths, newFileName, appName, customName);
-                this.outputArea.setText("\n"+outputMsg);
+                ActionDTO actionRes = PatchUtil.createPatch(filePaths, newFileName, appName, customName);
+                String msgColor = "green";
+                if(Boolean.FALSE.equals(actionRes.getSuccessful())){
+                    msgColor = "red";
+                }
+                this.outputArea.setText(UIUtils.encloseTextInParagraph(actionRes.getMessage(), "Arial", "16px",
+                        msgColor, "Patch creation", true));
             }
         }
     }

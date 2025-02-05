@@ -19,14 +19,6 @@ public class UIUtils {
         return strings;
     }
 
-    public static String removeDriveLetterFromPath(String path){
-        String newPath = path;
-        if(Util.areStringsValid(path) && path.length()>=3){
-            newPath = path.substring(3);
-        }
-        return newPath;
-    }
-
     public static void removeZipFilesFromListModel(DefaultListModel<String> files){
         if(Util.isListModelNotEmpty(files)) {
             for (int i = 0; i < files.size(); i++) {

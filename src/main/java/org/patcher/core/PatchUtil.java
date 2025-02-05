@@ -1,12 +1,12 @@
 package org.patcher.core;
 
 import org.patcher.dto.ActionDTO;
+import org.patcher.utility.AppLogger;
+import org.patcher.utility.Constants;
 import org.patcher.utility.Util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -20,20 +20,25 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public class PatchUtil {
-    public static String createPatch(List<String> filePaths, String newFileName, String appName, String customName) {
-        String output = "Patch successfully created in folder patches";
+    public static ActionDTO createPatch(List<String> filePaths, String newFileName, String appName, String customName) {
+        ActionDTO result = new ActionDTO();
+        result.setSuccessful(false);
+        result.setMessage(Constants.MESSAGES.DEFAULT_PATCH_CREATION_FAILED_MESSAGE.getValue());
         try {
-            newFileName = "patches/" + newFileName;
+            AppContext.createdPatchName = newFileName;
+            newFileName = String.join("/", PropManager.getDefaultPatchesFolder(), newFileName);
             addFilesToZip(filePaths, newFileName, appName, customName);
+            result.setSuccessful(true);
+            result.setMessage(PropManager.getPatchCreateSuccessMsg());
         } catch (Exception e) {
-            output = "Patch can not be created: " + e.getMessage();
+            AppLogger.logSevere("Error in PatchUtil.createPatch", e);
         }
-        return output;
+        return result;
     }
 
     public static void addFilesToZip(List<String> filePaths, String zipFilePath, String appName, String customName) throws Exception {
         String userDir = System.getProperty("user.dir");
-        Path directoryPath = Paths.get(userDir, "patches");
+        Path directoryPath = Paths.get(userDir, PropManager.getDefaultPatchesFolder());
         Files.createDirectories(directoryPath);
         try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(Paths.get(zipFilePath)))) {
             for (String filePath : filePaths) {
@@ -54,11 +59,11 @@ public class PatchUtil {
                     }
                     zipOut.closeEntry();
                 } else {
-                    System.err.println("File does not exist: " + filePath);
+                    throw new Exception("File added in patch is not found");
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            AppLogger.logSevere("Error in PatchUtil.addFilesToZip", e);
             throw e;
         }
     }
@@ -92,29 +97,26 @@ public class PatchUtil {
             }
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            AppLogger.logSevere("Error in PatchUtil.readPatch", e);
         }
         return patchFiles;
     }
 
     public static ActionDTO verifyPatch(String patchDir, String appDir, boolean matchAppRoot) {
         ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setSuccessful(false);
+        actionDTO.setMessage(Constants.MESSAGES.PATCH_VERIFY_FAILED_MESSAGE.getValue());
         try {
             List<String> patchFiles = readPatch(patchDir);
-            actionDTO = verifyPatch(patchFiles, appDir, matchAppRoot);
-            if (!actionDTO.getSuccessful()) {
-                return actionDTO;
-            }
-            actionDTO.setSuccessful(true);
-            actionDTO.setMessage("Patch verified");
+            actionDTO = verifyPatchFiles(patchFiles, appDir, matchAppRoot);
         } catch (Exception e) {
-            actionDTO.setSuccessful(false);
-            actionDTO.setMessage(e.getMessage());
+            AppLogger.logSevere("Error in PatchUtil.verifyPatch", e);
+            actionDTO.setMessage(Constants.MESSAGES.PATCH_VERIFY_FAILED_EXCEPTION_MESSAGE.getValue());
         }
         return actionDTO;
     }
 
-    private static ActionDTO verifyPatch(List<String> patchFiles, String appPath, boolean matchAppRoot) {
+    private static ActionDTO verifyPatchFiles(List<String> patchFiles, String appPath, boolean matchAppRoot) {
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setSuccessful(true);
         try {
@@ -137,8 +139,8 @@ public class PatchUtil {
                 }
             }
         } catch (Exception e) {
-            actionDTO.setMessage("Error: " + e.getMessage());
-            actionDTO.setSuccessful(false);
+            AppLogger.logSevere("Error in PatchUtil.verifyPatchFiles", e);
+            throw e;
         }
         return actionDTO;
     }
@@ -148,34 +150,32 @@ public class PatchUtil {
             Path path = Paths.get(folderPath);
             return Files.exists(path);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            AppLogger.logSevere("Error in PatchUtil.folderExists", e);
             return false;
         }
     }
+
+
     public static ActionDTO applyPatch(String appPath, String patchPath, boolean matchRootDir) {
         ActionDTO actionDTO = new ActionDTO();
         try {
-            boolean done = extractPatch(appPath, patchPath, matchRootDir);
-            if (done) {
-                actionDTO.setSuccessful(true);
-                actionDTO.setMessage("Patch applied successfully");
-            } else {
-                throw new Exception("Patch not applied");
-            }
+            extractPatch(appPath, patchPath, matchRootDir);
+            actionDTO.setSuccessful(true);
+            actionDTO.setMessage(Constants.MESSAGES.PATCH_APPLY_SUCCESS_MESSAGE.getValue());
         } catch (Exception e) {
-            actionDTO.setMessage("Patch can not be applied");
+            AppLogger.logSevere("Error in PatchUtil.applyPatch", e);
+            actionDTO.setMessage(Constants.MESSAGES.PATCH_APPLY_FAIL_EXCEPTION_MESSAGE.getValue());
             actionDTO.setSuccessful(false);
         }
         return actionDTO;
     }
 
-    public static boolean extractPatch(String appPath, String patchPath, boolean matchRootDir) throws Exception {
-        boolean success = false;
+    public static void extractPatch(String appPath, String patchPath, boolean matchRootDir) throws Exception {
         try {
             File patchFile = new File(patchPath);
 
             if (!patchFile.exists()) {
-                throw new FileNotFoundException("Patch file not found at: " + patchPath);
+                throw new Exception("Patch file not found at: " + patchPath);
             }
 
             try (ZipFile zipFile = new ZipFile(patchPath)) {
@@ -184,8 +184,6 @@ public class PatchUtil {
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     String entryName = entry.getName();
-
-                    // If ignoring the root, remove the first level (root directory)
                     String targetPath;
                     if (matchRootDir) {
                         targetPath = appPath + File.separator + entryName;
@@ -199,13 +197,11 @@ public class PatchUtil {
                             targetFile.mkdirs();
                         }
                     } else {
-                        // Create parent directories if necessary
                         File parentDir = targetFile.getParentFile();
                         if (parentDir != null && !parentDir.exists()) {
                             parentDir.mkdirs();
                         }
 
-                        // Extract the file
                         try (InputStream inputStream = zipFile.getInputStream(entry);
                              OutputStream outputStream = Files.newOutputStream(targetFile.toPath())) {
                             byte[] buffer = new byte[1024];
@@ -213,22 +209,13 @@ public class PatchUtil {
                             while ((bytesRead = inputStream.read(buffer)) != -1) {
                                 outputStream.write(buffer, 0, bytesRead);
                             }
-                        } catch (IOException e) {
-                            System.out.println("Error extracting file: " + entryName);
-                            throw e;
                         }
                     }
                 }
-
-                success = true;
-            } catch (IOException e) {
-                System.out.println("Error processing the zip file: " + e.getMessage());
-                throw e;
             }
         } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-            success = false;
+            AppLogger.logSevere("Error in PatchUtil.extractPatch", e);
+            throw e;
         }
-        return success;
     }
 }
