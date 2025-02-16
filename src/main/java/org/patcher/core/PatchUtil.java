@@ -340,8 +340,8 @@ public class PatchUtil {
             }
 
             //fonts xml ends
-
-            JarPacker.packToJar(new File(fontExtTempFolderPath), new File("font_ext\\extensions.jar"));
+            String newFontExt = FileUtil.joinPath("font_ext_jars", extName);
+            JarPacker.packToJar(new File(fontExtTempFolderPath), new File(newFontExt));
 
             actionDTO.setMessage("Adding font extensions is done successfully");
             actionDTO.setIsSuccessful(true);
