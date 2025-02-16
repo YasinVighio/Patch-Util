@@ -270,10 +270,9 @@ public class PatchUtil {
 
             String extName = FileUtil.getLastFolderFromPath(extensionPath);
 
+            String fontExtNameWithoutExt = extName.substring(0, extName.lastIndexOf(Constants.STRING_SEPARATOR.DOT.getValue()));
 
-            extName = extName.substring(0, extName.lastIndexOf(Constants.STRING_SEPARATOR.DOT.getValue()));
-
-            String fontExtTempFolderPath = FileUtil.joinPath(fontExtTempFolder, extName);
+            String fontExtTempFolderPath = FileUtil.joinPath(fontExtTempFolder, fontExtNameWithoutExt);
 
             extractPatch(fontExtTempFolderPath, extensionPath, false);
 
