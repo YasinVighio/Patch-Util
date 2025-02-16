@@ -1,6 +1,7 @@
 package org.patcher.utility;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,5 +58,19 @@ public class UIUtils {
         para=para+text;
         para=para+"</p>";
         return para;
+    }
+
+    public static String openFileDialog(JFrame parent){
+        String filePath = "";
+        try{
+            FileDialog fd = new FileDialog(parent, "Open File");
+            fd.setVisible(true);
+            if(Util.areStringsValid(fd.getFile(), fd.getDirectory())){
+                filePath = fd.getDirectory()+fd.getFile();
+            }
+        } catch (Exception e){
+            AppLogger.logSevere("Error in UIUtils.openFileDialog()", e);
+        }
+        return filePath;
     }
 }

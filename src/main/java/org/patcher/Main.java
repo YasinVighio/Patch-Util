@@ -2,7 +2,7 @@ package org.patcher;
 
 import org.patcher.core.AppContext;
 import org.patcher.core.PropManager;
-import org.patcher.screens.AppScreen;
+import org.patcher.UI.AppScreen;
 import org.patcher.utility.AppLogger;
 
 import javax.swing.*;

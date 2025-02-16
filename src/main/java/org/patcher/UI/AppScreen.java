@@ -2,19 +2,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package org.patcher.screens;
+package org.patcher.UI;
 
 import org.patcher.core.AppContext;
 import org.patcher.core.PatchUtil;
 import org.patcher.core.PropManager;
-import org.patcher.dto.ActionDTO;
-import org.patcher.utility.Constants;
-import org.patcher.utility.PropertyUtil;
-import org.patcher.utility.UIUtils;
-import org.patcher.utility.Util;
+import org.patcher.dto.viewmodels.ActionDTO;
+import org.patcher.utility.*;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.util.List;
 
@@ -22,7 +18,7 @@ import java.util.List;
  *
  * @author Yasin
  */
-public class AppScreen extends javax.swing.JFrame {
+public class AppScreen extends javax.swing.JFrame implements ParentFrame{
 
     private DefaultListModel<String> fileListModel = new DefaultListModel<>();
     private DefaultComboBoxModel<String> appNameModel = new DefaultComboBoxModel<>();
@@ -67,6 +63,8 @@ public class AppScreen extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         outputArea = new javax.swing.JTextPane();
         verifyPatchBtn = new javax.swing.JButton();
+        addFontsBtn = new javax.swing.JButton();
+        selectJarFontExt = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -130,10 +128,9 @@ public class AppScreen extends javax.swing.JFrame {
         matchAppRootBox.setSelected(true);
         matchAppRootBox.setText("Match Deployment App Name with Root Directory of Patch");
 
-
         appNameLabel1.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         appNameLabel1.setForeground(new java.awt.Color(153, 153, 0));
-        appNameLabel1.setText(AppContext.appFullName);
+        appNameLabel1.setText("Patch Utils v1.0");
         appNameLabel1.setToolTipText("Utility application to create patch from and for exploded (extracted) WAR/JAR Files");
 
         appNameLabel2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
@@ -160,7 +157,7 @@ public class AppScreen extends javax.swing.JFrame {
         });
 
         readPatchBtn.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        readPatchBtn.setText("Read Patch");
+        readPatchBtn.setText("Read JAR/Patch");
         readPatchBtn.setToolTipText("Select exploded war or jar binary on which patch is to be applied");
         readPatchBtn.setEnabled(false);
         readPatchBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -184,6 +181,18 @@ public class AppScreen extends javax.swing.JFrame {
             }
         });
 
+        addFontsBtn.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        addFontsBtn.setText("Add Fonts To JAR");
+        addFontsBtn.setEnabled(false);
+        addFontsBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addFontsBtnActionPerformed(evt);
+            }
+        });
+
+        selectJarFontExt.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        selectJarFontExt.setText("Is selected JAR font extension");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -191,46 +200,46 @@ public class AppScreen extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 939, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(appNameLabel)
-                            .addComponent(clearOutputBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane3))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(createPatchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(appNameLabel2))
-                                .addGap(18, 18, 18)
-                                .addComponent(matchAppRootBox))
+                            .addComponent(createPatchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(rmFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(addFontsBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(addFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(45, 45, 45)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(rmFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(addFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(166, 166, 166)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel3)
-                                            .addComponent(jLabel1))
-                                        .addGap(18, 18, 18)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(appNameSelector, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(customAppName, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addComponent(appNameLabel1))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel3)
+                                    .addGap(21, 21, 21)
+                                    .addComponent(customAppName, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel1)
+                                    .addGap(77, 77, 77)
+                                    .addComponent(appNameSelector, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(matchAppRootBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(selectJarFontExt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(applyPatchBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(selectAppBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(readPatchBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(verifyPatchBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(selectAppBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(readPatchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(applyPatchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(verifyPatchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane3)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(appNameLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(appNameLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(clearOutputBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(301, 301, 301)
+                .addComponent(appNameLabel1)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -239,85 +248,71 @@ public class AppScreen extends javax.swing.JFrame {
                 .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(265, 265, 265))
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(appNameLabel1)
+                .addGap(21, 21, 21)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(appNameLabel1)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(appNameSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel3)
-                                    .addComponent(customAppName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(73, 73, 73))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(addFileBtn)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(rmFileBtn)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(createPatchBtn)
-                                    .addComponent(matchAppRootBox))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(selectAppBtn)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(readPatchBtn)
-                        .addGap(7, 7, 7)
-                        .addComponent(verifyPatchBtn)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(applyPatchBtn)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(appNameLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(clearOutputBtn))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(9, 9, 9)
+                        .addComponent(readPatchBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(verifyPatchBtn)
+                        .addGap(12, 12, 12)
+                        .addComponent(applyPatchBtn))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(appNameSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(addFileBtn))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(rmFileBtn)
+                            .addComponent(jLabel3)
+                            .addComponent(customAppName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(createPatchBtn)
+                            .addComponent(matchAppRootBox))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(addFontsBtn)
+                            .addComponent(selectJarFontExt))))
+                .addGap(14, 14, 14)
                 .addComponent(appNameLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(appNameLabel)
+                    .addComponent(clearOutputBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private String openFileDialog(){
-        String filePath = "";
-        try{
-            FileDialog fd = new FileDialog(this);
-            fd.setVisible(true);
-            if(Util.areStringsValid(fd.getFile(), fd.getDirectory())){
-                filePath = fd.getDirectory()+fd.getFile();
-            }
-        } catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-        return filePath;
-    }
 
     private void addFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFileBtnActionPerformed
-        String newFile = openFileDialog();
-        if (PropertyUtil.isFileAllowed(newFile)) {
-            if (newFile.endsWith(Constants.FILE_CONSTANTS.ZIP_FILE_TYPE.getValue())) {
+        String newFile = UIUtils.openFileDialog(this);
+        if (PropertyUtil.isFileAllowed(newFile, false)) {
+            boolean isSelectedFileJar = newFile.toLowerCase().endsWith(Constants.FILE_CONSTANTS.JAR_FILE_TYPE.getValue());
+            if (newFile.toLowerCase().endsWith(Constants.FILE_CONSTANTS.ZIP_FILE_TYPE.getValue()) ||
+                    isSelectedFileJar) {
                 appNameModel.removeAllElements();
                 customAppName.setText("");
                 fileListModel.removeAllElements();
                 fileListModel.addElement(newFile);
-                if (Util.areStringsValid(this.appDir)) {
+                if (Util.areStringsValid(this.appDir) || isSelectedFileJar) {
                     verifyPatchBtn.setEnabled(true);
                 }
                 readPatchBtn.setEnabled(true);
                 this.patchPath = newFile;
             } else {
-                String filePathWithoutDrive = Util.removeDriveLetterFromPath(newFile);
+                String filePathWithoutDrive = FileUtil.removeDriveLetterFromPath(newFile);
                 String[] filePathParts = filePathWithoutDrive.split("\\\\");
                 for (String path : filePathParts) {
                     if (appNameModel.getIndexOf(path) < 0) {
@@ -339,17 +334,19 @@ public class AppScreen extends javax.swing.JFrame {
     private void rmFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rmFileBtnActionPerformed
         int selectedFile = selectedFilesList.getSelectedIndex();
         if(selectedFile>-1){
-            if(selectedFilesList.getSelectedValue().endsWith(".zip")){
+            if(selectedFilesList.getSelectedValue().endsWith(Constants.FILE_CONSTANTS.ZIP_FILE_TYPE.getValue())
+                    || selectedFilesList.getSelectedValue().endsWith(Constants.FILE_CONSTANTS.JAR_FILE_TYPE.getValue())){
                 this.verifyPatchBtn.setEnabled(false);
                 this.applyPatchBtn.setEnabled(false);
                 this.readPatchBtn.setEnabled(false);
+                this.addFontsBtn.setEnabled(false);
                 this.patchPath="";
             }
             fileListModel.remove(selectedFile);
         }
     }//GEN-LAST:event_rmFileBtnActionPerformed
 
-    private void createPatchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPatchBtnActionPerformed
+    private void createPatchBtnActionPerformed(java.awt.event.ActionEvent evt) {                                               
         if(Util.isListModelNotEmpty(fileListModel)) {
             String newFileName = JOptionPane.showInputDialog(this, Constants.MESSAGES.PATCH_NAME_INPUT_MESSAGE.getValue());
             if (!Util.areStringsValid(newFileName)) {
@@ -366,7 +363,7 @@ public class AppScreen extends javax.swing.JFrame {
             if (Util.isListNotEmpty(filePaths)) {
                 ActionDTO actionRes = PatchUtil.createPatch(filePaths, newFileName, appName, customName);
                 String msgColor = "green";
-                if(Boolean.FALSE.equals(actionRes.getSuccessful())){
+                if(Boolean.FALSE.equals(actionRes.getIsSuccessful())){
                     msgColor = "red";
                 }
                 this.outputArea.setText(UIUtils.encloseTextInParagraph(actionRes.getMessage(), "Arial", "16px",
@@ -375,7 +372,7 @@ public class AppScreen extends javax.swing.JFrame {
         }
     }
 
-    private void applyPatchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyPatchBtnActionPerformed
+    private void applyPatchBtnActionPerformed(java.awt.event.ActionEvent evt) {                                              
         ActionDTO ad = PatchUtil.applyPatch(this.appDir, fileListModel.get(0),matchAppRootBox.isSelected());
         outputArea.setText(ad.getMessage());
     }
@@ -413,36 +410,82 @@ public class AppScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_clearOutputBtnActionPerformed
 
     private void readPatchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readPatchBtnActionPerformed
-        List<String> patchFiles = PatchUtil.readPatch(this.patchPath);
+        List<String> patchFiles = PatchUtil.readPatch(this.patchPath, this.selectJarFontExt.isSelected());
         String files = UIUtils.stringListToOutputAreaMsg(patchFiles);
-        String outputText = UIUtils.encloseTextInParagraph(files, "Arial", "16px", "green", "Files in patch:", true);
+        String heading = Boolean.TRUE.equals(this.selectJarFontExt.isSelected()) ? "Files in font extension:" : "Files in patch:";
+        if(this.selectJarFontExt.isSelected()){
+            String fontXML = PatchUtil.makeFontsXML(AppContext.currentFontFamilies, null, false);
+            String escapedXML = fontXML.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;");
+
+            files = files + "<br><b>Font XML</b><br><pre style=\"font-size:14px;\">" + escapedXML + "</pre>";
+        }
+        String outputText = UIUtils.encloseTextInParagraph(files, "Arial", "16px", "green", heading, true);
         this.outputArea.setText(outputText);
     }//GEN-LAST:event_readPatchBtnActionPerformed
 
     private void verifyPatchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_verifyPatchBtnActionPerformed
-        ActionDTO actionDTO = PatchUtil.verifyPatch(fileListModel.get(0), this.appDir,matchAppRootBox.isSelected());
-        String msgColor = "";
-        String outputMsg = "";
-        if(actionDTO.getSuccessful()){
-            this.applyPatchBtn.setEnabled(true);
-            msgColor="green";
-            outputMsg = actionDTO.getMessage();
+       if(selectJarFontExt.isSelected()){
+           ActionDTO actionDTO = PatchUtil.verifyFontExtension(fileListModel.get(0));
+           String msgColor = "red";
+           if (actionDTO.getIsSuccessful()) {
+               this.addFontsBtn.setEnabled(true);
+               msgColor = "green";
+           } else {
+               this.addFontsBtn.setEnabled(false);
+           }
+           String outputText = UIUtils.encloseTextInParagraph(actionDTO.getMessage(), "Arial", "12px", msgColor, "Verification Result:", true);
+           this.outputArea.setText(outputText);
+       } else {
+           ActionDTO actionDTO = PatchUtil.verifyPatch(fileListModel.get(0), this.appDir, matchAppRootBox.isSelected());
+           String msgColor = "";
+           String outputMsg = "";
+           if (actionDTO.getIsSuccessful()) {
+               this.applyPatchBtn.setEnabled(true);
+               msgColor = "green";
+               outputMsg = actionDTO.getMessage();
 
-        } else {
-            this.applyPatchBtn.setEnabled(false);
-            msgColor="red";
-            if(Util.areStringsValid(actionDTO.getMessage())){
-                outputMsg = actionDTO.getMessage()+"<br>";
-            }
-            String concatenatedMsg = UIUtils.stringListToOutputAreaMsg(actionDTO.messageList);
-            if(Util.areStringsValid(concatenatedMsg)){
-                outputMsg=outputMsg+"<br>"+concatenatedMsg;
-            }
-        }
-        String outputText = UIUtils.encloseTextInParagraph(outputMsg, "Arial", "12px", msgColor, "Verification Result:", true);
-        this.outputArea.setText(outputText);
-
+           } else {
+               this.applyPatchBtn.setEnabled(false);
+               msgColor = "red";
+               if (Util.areStringsValid(actionDTO.getMessage())) {
+                   outputMsg = actionDTO.getMessage() + "<br>";
+               }
+               String concatenatedMsg = UIUtils.stringListToOutputAreaMsg(actionDTO.messageList);
+               if (Util.areStringsValid(concatenatedMsg)) {
+                   outputMsg = outputMsg + "<br>" + concatenatedMsg;
+               }
+           }
+           String outputText = UIUtils.encloseTextInParagraph(outputMsg, "Arial", "12px", msgColor, "Verification Result:", true);
+           this.outputArea.setText(outputText);
+       }
     }//GEN-LAST:event_verifyPatchBtnActionPerformed
+
+    private void addFontsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFontsBtnActionPerformed
+        //open font screen
+
+        FontDialog fontDialog = new FontDialog(this);
+        fontDialog.setLocationRelativeTo(this);
+        fontDialog.setTitle("Add Fonts");
+        fontDialog.setResizable(false);
+        fontDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        fontDialog.setVisible(true);
+
+    }//GEN-LAST:event_addFontsBtnActionPerformed
+
+
+    @Override
+    public void childScreenCallback() {
+       ActionDTO actionDTO = PatchUtil.addFontsInExtension(fileListModel.get(0));
+       String msgColor = "red";
+       if(actionDTO.getIsSuccessful()){
+           msgColor = "green";
+       }
+       String outputText = UIUtils.encloseTextInParagraph(actionDTO.getMessage(), "Arial", "12px", msgColor, "Adding fonts in extension:", true);
+       this.outputArea.setText(outputText);
+       this.addFontsBtn.setEnabled(false);
+    }
 
     /**
      * @param args the command line arguments
@@ -481,6 +524,7 @@ public class AppScreen extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addFileBtn;
+    private javax.swing.JButton addFontsBtn;
     private javax.swing.JLabel appNameLabel;
     private javax.swing.JLabel appNameLabel1;
     private javax.swing.JLabel appNameLabel2;
@@ -499,6 +543,7 @@ public class AppScreen extends javax.swing.JFrame {
     private javax.swing.JButton readPatchBtn;
     private javax.swing.JButton rmFileBtn;
     private javax.swing.JButton selectAppBtn;
+    private javax.swing.JCheckBox selectJarFontExt;
     private javax.swing.JList<String> selectedFilesList;
     private javax.swing.JButton verifyPatchBtn;
     // End of variables declaration//GEN-END:variables

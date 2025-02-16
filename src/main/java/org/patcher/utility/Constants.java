@@ -3,6 +3,9 @@ package org.patcher.utility;
 public interface Constants {
     enum STRING_SEPARATOR {
         DOT("."),
+        PATH_SEPARATOR_FOWARD_SLASH("/"),
+        PATH_SEPARATOR_BACK_SLASH("\\"),
+        PATH_SEPARATOR_BACK_SLASH_ESCAPE("\\\\"),
         SPACE(" "),
         DASH("-"),
         COMMA(",");
@@ -53,9 +56,24 @@ public interface Constants {
     }
 
     enum FILE_CONSTANTS {
+        TTF_FILE_TYPE(".ttf"),
+        JAR_FILE_TYPE(".jar"),
         ZIP_FILE_TYPE(".zip");
         private final String value;
         FILE_CONSTANTS(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    enum FONT_EXTENSION_CONSTANTS {
+        PROPERTIES_FILE("jasperreports_extension.properties"),
+        FONTS_XML("fonts.xml");
+        private final String value;
+        FONT_EXTENSION_CONSTANTS(String value) {
             this.value = value;
         }
 

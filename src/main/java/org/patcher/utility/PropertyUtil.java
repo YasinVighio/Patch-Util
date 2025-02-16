@@ -2,16 +2,17 @@ package org.patcher.utility;
 
 import org.patcher.core.MethodExecutor;
 import org.patcher.core.PropManager;
-import org.patcher.dto.ActionDTO;
+import org.patcher.dto.viewmodels.ActionDTO;
 
 import java.util.List;
 
 public class PropertyUtil {
-    public static boolean isFileAllowed(String fileName){
+
+    public static boolean isFileAllowed(String fileName, boolean isFont) {
         boolean isAllowed = false;
-        List<String> allowedFiles = PropManager.getFileExtensionsAllowed();
+        List<String> allowedFiles = PropManager.getFileExtensionsAllowed(isFont);
         if(Util.isListNotEmpty(allowedFiles)){
-            isAllowed = allowedFiles.contains(Util.getFileExtension(fileName));
+            isAllowed = allowedFiles.contains(FileUtil.getFileExtension(fileName));
         }
         return isAllowed;
     }
@@ -30,7 +31,7 @@ public class PropertyUtil {
                         }
                     } else {
                         ActionDTO actionDTO = MethodExecutor.executeMethod(str);
-                        if(actionDTO.getSuccessful()) {
+                        if(actionDTO.getIsSuccessful()) {
                             placeholderValue = (String) actionDTO.getData();
                         }
                     }

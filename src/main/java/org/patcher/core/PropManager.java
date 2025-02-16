@@ -6,12 +6,14 @@ import org.patcher.utility.PropertyUtil;
 import org.patcher.utility.Util;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 public class PropManager {
     private static final Properties properties = new Properties();
     private static final String FILE_EXT_ALLOWED_PROPERTY = "fileExtensionsAllowed";
+    private static final String FONT_EXT_ALLOWED_PROPERTY = "fontExtensionsAllowed";
     private static final String PATCH_CREATED_SUCCESS_MSG = "patchCreateSuccessMessage";
     private static final String PATCHES_FOLDER_PROP = "patchesFolder";
     private static final String PATCH_DEFAULT_NAME_PROP = "patchDefaultName";
@@ -28,8 +30,18 @@ public class PropManager {
         }
     }
 
-    public static List<String> getFileExtensionsAllowed(){
-        return Util.getStrListFromString(getPropertyValue(FILE_EXT_ALLOWED_PROPERTY), ",");
+    public static List<String> getFileExtensionsAllowed(boolean isFont){
+        List<String> allowedFiles = new ArrayList<String>();
+        String propVal = isFont ? properties.getProperty(FONT_EXT_ALLOWED_PROPERTY) :
+                properties.getProperty(FILE_EXT_ALLOWED_PROPERTY);
+        if(Util.areStringsValid(propVal)){
+            if(propVal.contains(Constants.STRING_SEPARATOR.COMMA.getValue())){
+                allowedFiles = Util.getStrListFromString(propVal, Constants.STRING_SEPARATOR.COMMA.getValue());
+            } else {
+                allowedFiles.add(propVal);
+            }
+        }
+        return allowedFiles;
     }
 
     public static String getPatchCreateSuccessMsg(){
